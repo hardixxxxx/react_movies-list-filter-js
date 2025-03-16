@@ -4,25 +4,20 @@ import './App.scss';
 import { MoviesList } from './components/MoviesList';
 import moviesFromServer from './api/movies.json';
 
-const getPreparedMovies = (movies, query) => {
-  let preparedMovies = [...movies];
+const getFilteredMovies = (movies, query) => {
+  const normalized = str => str.trim().toLowerCase();
+  const normalizedQuery = normalized(query);
 
-  if (query) {
-    preparedMovies = preparedMovies.filter(({ title, description }) => {
-      const normalizedQuery = query.trim().toLowerCase();
-      const titleHaveQuery = title.toLowerCase().includes(normalizedQuery);
-      const descHaveQuery = description.toLowerCase().includes(normalizedQuery);
-
-      return titleHaveQuery || descHaveQuery;
-    });
-  }
-
-  return preparedMovies;
+  return movies.filter(
+    ({ title, description }) =>
+      normalized(title).includes(normalizedQuery) ||
+      normalized(description).includes(normalizedQuery),
+  );
 };
 
 export const App = () => {
   const [query, setQuery] = useState('');
-  const visibleMovies = getPreparedMovies(moviesFromServer, query);
+  const visibleMovies = getFilteredMovies(moviesFromServer, query);
 
   return (
     <div className="page">
@@ -40,8 +35,8 @@ export const App = () => {
                 id="search-query"
                 className="input"
                 placeholder="Type search word"
-                onChange={e => {
-                  setQuery(e.target.value);
+                onChange={event => {
+                  setQuery(event.target.value);
                 }}
               />
             </div>
